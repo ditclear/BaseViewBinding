@@ -12,9 +12,9 @@
     <TextView
         android:id="@+id/title_tv"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:drawablePadding="5dp"
+        android:gravity="center"
         android:textColor="@color/text_default"
         android:textSize="@dimen/text_size_default"
         android:textStyle="bold"/>

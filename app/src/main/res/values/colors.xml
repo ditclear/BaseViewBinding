@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="text_default">#000000</color>
+    <color name="text_default">#ffffff</color>
     <color name="background">#e3e3e3</color>
 
     <color name="theme">@color/colorPrimary</color>
