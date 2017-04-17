@@ -13,7 +13,9 @@
         android:layout_height="match_parent"
         tools:context="com.ditclear.app.MainActivity">
 
-        <include layout="@layout/toolbar_default"/>
+        <include
+            android:id="@+id/toolbar_layout"
+            layout="@layout/toolbar_default"/>
 
         <TextView
             android:id="@+id/content_tv"

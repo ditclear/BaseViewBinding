@@ -15,7 +15,7 @@ public class MainActivity extends BaseBindActivity<ActivityMainBinding> {
     protected void initView() {
 
         setShowBackNavigation(false);
-        setBarTitle("main");
+        mBinding.toolbarLayout.titleTv.setText("main");
         mBinding.contentTv.setText("this is bindText");
     }
 
