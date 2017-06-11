@@ -4,4 +4,8 @@
     <string name="please_check_net_state">请检查网络状态</string>
     <string name="server_not_avaliabe">服务不可用</string>
     <string name="load_data_refresh">刷新完成</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="prompt_email">Email</string>
 </resources>

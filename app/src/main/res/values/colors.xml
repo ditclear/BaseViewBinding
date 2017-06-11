@@ -8,4 +8,5 @@
     <color name="background">#e3e3e3</color>
 
     <color name="theme">@color/colorPrimary</color>
+    <color name="login_error">#fa364e</color>
 </resources>
