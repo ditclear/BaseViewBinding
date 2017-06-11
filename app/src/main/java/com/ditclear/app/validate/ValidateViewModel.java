@@ -2,10 +2,19 @@ package com.ditclear.app.validate;
 
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
+import android.util.Log;
 
 import com.ditclear.app.BR;
 
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 /**
  * 页面描述：
@@ -28,9 +37,9 @@ public class ValidateViewModel extends BaseObservable {
     private Pattern passwordPattern = Pattern.compile(PASSWORD_PATTERN);
 
 
-    private boolean usernameInValid = false;
-    private boolean passwordInValid = false;
-    private boolean emailInValid = false;
+    private String usernameError = "";
+    private String passwordError = "";
+    private String emailError = "";
 
     private CallBack mCallBack;
 
@@ -43,58 +52,49 @@ public class ValidateViewModel extends BaseObservable {
         return true;
     }
 
-    @Bindable("emailInValid")
-    public boolean isEmailInValid() {
-        return emailInValid;
-    }
-
-    public void setEmailInValid(boolean emailInValid) {
-        this.emailInValid = emailInValid;
-        notifyPropertyChanged(BR.emailInValid);
-    }
-
-    @Bindable("passwordInValid")
-    public boolean isPasswordInValid() {
-        return passwordInValid;
-    }
-
-    public void setPasswordInValid(boolean passwordInValid) {
-        this.passwordInValid = passwordInValid;
-        notifyPropertyChanged(BR.passwordInValid);
-    }
-
-    @Bindable("usernameInValid")
-    public boolean isUsernameInValid() {
-        return usernameInValid;
-    }
-
-    public void setUsernameInValid(boolean usernameInValid) {
-        this.usernameInValid = usernameInValid;
-        notifyPropertyChanged(BR.usernameInValid);
-    }
-
-    @Bindable("passwordInValid")
-    public String getPasswordError() {
-        if (isPasswordInValid()) {
-            return "密码长度在6-16位间";
-        }
-        return null;
-    }
-
-    @Bindable("emailInValid")
-    public String getEmailError() {
-        if (isEmailInValid()) {
-            return "邮箱格式";
-        }
-        return null;
-    }
-
-    @Bindable("usernameInValid")
+    @Bindable
     public String getUsernameError() {
-        if (isUsernameInValid()) {
-            return "请输入正确的用户名";
-        }
-        return null;
+        return usernameError;
+    }
+
+    public void setUsernameError(String usernameError) {
+        this.usernameError = usernameError;
+        notifyPropertyChanged(BR.usernameError);
+    }
+
+    @Bindable("usernameError")
+    public boolean isUsernameInValid() {
+        return !isEmpty(usernameError);
+    }
+
+    @Bindable("emailError")
+    public boolean isEmailInValid() {
+        return !isEmpty(emailError);
+    }
+
+    @Bindable("passwordError")
+    public boolean isPasswordInValid() {
+        return !isEmpty(passwordError);
+    }
+
+    @Bindable
+    public String getPasswordError() {
+        return passwordError;
+    }
+
+    public void setPasswordError(String passwordError) {
+        this.passwordError = passwordError;
+        notifyPropertyChanged(BR.passwordError);
+    }
+
+    @Bindable
+    public String getEmailError() {
+        return emailError;
+    }
+
+    public void setEmailError(String emailError) {
+        this.emailError = emailError;
+        notifyPropertyChanged(BR.emailError);
     }
 
     @Bindable
@@ -127,33 +127,64 @@ public class ValidateViewModel extends BaseObservable {
         notifyPropertyChanged(BR.password);
     }
 
-    private boolean validateSignIn() {
-
-        boolean usernameValid = usernamePattern.matcher(username).matches();
-        boolean emailValid = emailPattern.matcher(email).matches();
-        boolean passwordValid = passwordPattern.matcher(password).matches();
-        //验证表单，并且显示错误信息
-        setUsernameInValid(!usernameValid);
-        setEmailInValid(!emailValid);
-        setPasswordInValid(!passwordValid);
-        if (usernameValid && passwordValid && emailValid) {
-            return true;
-        }
-        return false;
-    }
 
     public void attemptToSignIn() {
-        if (validateSignIn()) {
-            // can load remote data
-            mCallBack.signInSuccess();
-        } else {
-            mCallBack.signInFailure();
-        }
+        clearError();
+        mockData().delay(1, TimeUnit.SECONDS)
+                .subscribe(new Consumer<String[]>() {
+                    @Override
+                    public void accept(@NonNull String[] responses) throws Exception {
+                        if ("username".equals(responses[0])) {
+                            setUsernameError(responses[1]);
+                            mCallBack.signInFailure();
+                        } else if ("password".equals(responses[0])) {
+                            setPasswordError(responses[1]);
+                            mCallBack.signInFailure();
+                        } else {
+                            mCallBack.signInSuccess();
+                        }
+                    }
+                });
 
+    }
+
+    private void clearError() {
+        setEmailError("");
+        setUsernameError("");
+        setPasswordError("");
     }
 
     public void setCallBack(CallBack callBack) {
         mCallBack = callBack;
+    }
+
+    public boolean isEmpty(String error) {
+        return error == null || "".equals(error) || "".equals(error.trim());
+    }
+
+    private Observable<String[]> mockData() {
+        return Observable.just(new Random().nextInt(3))
+                .flatMap(new Function<Integer,ObservableSource<String>>() {
+                    @Override
+                    public ObservableSource<String> apply(@NonNull Integer random)
+                            throws Exception {
+                        Log.d("random", "apply() called with: random = [" + random + "]");
+                        String response = "";
+                        String username = "username,用户名不存在";
+                        String password = "password,密码不正确";
+                        if (random == 1) {
+                            response = username;
+                        } else if (random == 2) {
+                            response = password;
+                        }
+                        return Observable.just(response);
+                    }
+                }).map(new Function<String,String[]>() {
+                    @Override
+                    public String[] apply(@NonNull String response) throws Exception {
+                        return response.split(",");
+                    }
+                });
     }
 
     public interface CallBack {
