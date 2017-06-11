@@ -25,6 +25,7 @@ public class ValidateSampleActivity extends
 
     @Override
     protected void initView() {
+        mBinding.toolbarLayout.titleTv.setText("VALIDATE");
         mViewModel = new ValidateViewModel();
         mViewModel.setCallBack(this);
         mBinding.setVm(mViewModel);
